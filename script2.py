@@ -40,8 +40,6 @@ def restore(app, path, json_file):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--url', type=str, help='Wilddog URL')
-    parser.add_argument('-s', '--secret', type=str, help='Wilddog secret')
-    parser.add_argument('-e', '--email', type=str, help='Wilddog email')
     parser.add_argument('-p', '--path', type=str, help='Node path')
     parser.add_argument('-a', '--action', type=str,
                         choices=['backup', 'restore'])
