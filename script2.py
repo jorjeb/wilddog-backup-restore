@@ -7,22 +7,30 @@ import os
 import re
 
 
-def backup(app, path, output_dir):
-    result = app.get(path, None)
+def backup(app, path, output_dir, order_by, start, limit):
+    file_name = re.sub('^\/*|\/*$', '', path)
+    file_name = file_name.replace('/', '_')
 
-    path = re.sub('^\/*|\/*$', '', path)
-    path = path.replace('/', '_')
+    if file_name == '':
+        file_name = 'root'
 
-    if path == '':
-        path = 'root'
+    part = re.sub('[^\w]+', '', start)
 
-    json_file = os.path.abspath('{}/{}.json'.format(output_dir, path))
+    while True:
+        result = app.get(path, None, {'orderBy': order_by, 'startAt': start, 'limitToFirst': limit})
+        start = sorted(result.keys())[-1]
+        result = json.dumps(result, cls=jsonutil.JSONEncoder)
+        
+        if result is not None:
+            json_file = os.path.abspath('{}/{}_{}.json'.format(output_dir, file_name, part))
 
-    with open(json_file, 'w') as json_output_file:
-        json_output_file.write(json.dumps(result, cls=jsonutil.JSONEncoder))
+            with open(json_file, 'w') as json_output_file:
+                json_output_file.write(result)
+        else:
+            break
 
 
-def restore(app, path, json_file):
+def restore(app, path, json_file, limit=10):
     path = re.sub('^\/*|\/*$', '', path)
     path = '/{}'.format(path).split('/')
 
@@ -45,6 +53,10 @@ if __name__ == '__main__':
                         choices=['backup', 'restore'])
 
     #  backup
+    parser.add_argument('-O', '--order_by', type=str, help='Sort nodes by')
+    parser.add_argument('-S', '--start', type=str, help='Starting point')
+    parser.add_argument('-l', '--limit', type=int, 
+                        help='Number of nodes to fetch per request')
     parser.add_argument('-o', '--output_dir', type=str,
                         help='Output directory')
 
@@ -57,6 +69,7 @@ if __name__ == '__main__':
     app = wilddog.WilddogApplication(args.url, None)
 
     if args.action == 'backup':
-        backup(app, args.path, args.output_dir)
+        backup(app, args.path, args.output_dir, args.order_by, args.start, 
+               args.limit)
     elif args.action == 'restore':
         restore(app, args.path, args.json_file)
