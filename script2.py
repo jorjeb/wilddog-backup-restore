@@ -18,14 +18,13 @@ def backup(app, path, output_dir, order_by, start, limit):
 
     while True:
         result = app.get(path, None, {'orderBy': order_by, 'startAt': start, 'limitToFirst': limit})
-        start = sorted(result.keys())[-1]
-        result = json.dumps(result, cls=jsonutil.JSONEncoder)
         
         if result is not None:
+            start = sorted(result.keys())[-1]
             json_file = os.path.abspath('{}/{}_{}.json'.format(output_dir, file_name, part))
 
             with open(json_file, 'w') as json_output_file:
-                json_output_file.write(result)
+                json_output_file.write(json.dumps(result, cls=jsonutil.JSONEncoder))
         else:
             break
 
