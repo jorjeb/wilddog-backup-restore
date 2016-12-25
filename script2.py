@@ -14,9 +14,8 @@ def backup(app, path, output_dir, order_by, start, limit):
     if file_name == '':
         file_name = 'root'
 
-    part = re.sub('[^\w]+', '', start)
-
     while True:
+        part = re.sub('[^\w]+', '', start)
         result = app.get(path, None, {'orderBy': order_by, 'startAt': start, 'limitToFirst': limit})
         
         if result is not None:
