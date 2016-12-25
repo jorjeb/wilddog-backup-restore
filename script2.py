@@ -20,6 +20,7 @@ def backup(app, path, output_dir, order_by, start, limit):
         
         if result is not None:
             start = sorted(result.keys())[-1]
+            start = '"{}"'.format(start)
             json_file = os.path.abspath('{}/{}_{}.json'.format(output_dir, file_name, part))
 
             with open(json_file, 'w') as json_output_file:
